@@ -11,11 +11,7 @@ use App\Http\Resources\ArticleCollection;
 
 class ArticleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+   
     public function index()
     {
         $data = article::with('user')->get();
@@ -23,12 +19,6 @@ class ArticleController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(articleRequest $request)
     {
        $article = article::with('user')->create($request->all());
@@ -40,30 +30,27 @@ class ArticleController extends Controller
        }
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(articleRequest $request , article $article)
+    public function show($id)
     {
-        if($article->update($request->all())){
-            return response()->json(['status'=>'success','message'=>'article was updated'],200);
-        }else{
-         return response()->json(['status'=>'error','message'=>' not update'],405);
- 
-        }
+       $article = article::findOrFail($id);
+       if($article){
+           return response()->json(['data'=>new ArticleResource($article) ,'status'=>'success','message'=>'article '],200);
+       }else{
+        return response()->json(['data'=>[] ,'status'=>'error','message'=>'article not created'],405);
+
+       }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
+    public function update(Request $request ,$id)
+    {
+        $article = article::findOrFail($id);
+        $article->update($request->all());
+            return response()->json(['data'=>new ArticleResource($article) ,'status'=>'success','message'=>'article was updated'],200);
+    
+    }
+
+    
     public function destroy(article $article)
     {
         if($article->delete()){
